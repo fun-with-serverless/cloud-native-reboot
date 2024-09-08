@@ -153,6 +153,14 @@ Resources:
         - Key: Name
           Value: GalacticGamersEC2
 
+  RDSParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Family: postgres16  
+      Description: Custom parameter group for Galactic Gamers RDS
+      Parameters:
+        rds.force_ssl: '0'
+
   RDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -160,6 +168,7 @@ Resources:
       Engine: postgres
       MasterUsername: !Ref DBUsername
       MasterUserPassword: !Ref DBPassword
+      EngineVersion: 16.0
       DBInstanceClass: db.t3.micro
       AllocatedStorage: 20
       PubliclyAccessible: false
@@ -167,6 +176,7 @@ Resources:
         - !Ref RDSSecurityGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
       MultiAZ: false
+      DBParameterGroupName: !Ref RDSParameterGroup
 
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
