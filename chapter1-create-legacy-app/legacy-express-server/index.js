@@ -41,6 +41,7 @@ const verifyToken = (req, res, next) => {
 // User Registration
 app.post('/auth/register', async (req, res) => {
   const { username, password, email } = req.body;
+  console.info('Someone is registering', username, password, email)
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
@@ -50,6 +51,7 @@ app.post('/auth/register', async (req, res) => {
     );
     res.status(201).send({ message: 'User registered successfully', userId: result.rows[0].id });
   } catch (error) {
+    console.warn('Failed registering', error)
     res.status(500).send({ message: 'Error registering user' });
   }
 });
@@ -57,13 +59,14 @@ app.post('/auth/register', async (req, res) => {
 // User Login
 app.post('/auth/login', async (req, res) => {
   const { username, password } = req.body;
-
+  console.info('Someone is login', username, password)
   try {
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     if (result.rows.length > 0) {
       const user = result.rows[0];
       if (await bcrypt.compare(password, user.password)) {
         const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: 86400 }); // 24 hours
+        console.info('Successfully logged')
         res.status(200).send({ message: 'Login successful', token });
       } else {
         res.status(401).send({ message: 'Invalid credentials' });
